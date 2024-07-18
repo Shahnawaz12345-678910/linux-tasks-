@@ -1,0 +1,147 @@
+* Task 1: Connect to the Virtual Server
+Establish a secure connection to the virtual server.
+Command:
+  ssh username@your_server_ip
+  Output:Connection established successfully.
+
+* Task 2: System Information and Health Check
+Retrieve and analyze system information and health status.
+Commands:
+  # Get hostname, IP address, and kernel version
+  hostname
+  ip a
+  uname -r
+
+  # Check system load
+  uptime
+
+  # Check disk space
+  df -h
+
+  # Check CPU and memory usage
+  top -b -n 1 | head -n 20
+Output: Documented hostname, IP address, kernel version, system load, disk space, and resource usage.
+Task 3: User Management
+Objective: Manage user accounts and permissions.
+Commands:
+  # Create new user
+  sudo adduser l2testuser
+
+  # Set password
+  sudo passwd l2testuser
+
+  # Add user to sudo group
+  sudo usermod -aG sudo l2testuser
+
+  # Create .bash_profile with custom environment variables
+  echo 'export PATH=$PATH:/usr/local/bin' > /home/l2testuser/.bash_profile
+  echo 'export PS1="\u@\h:\w\$ "' >> /home/l2testuser/.bash_profile
+Output: New user `l2testuser` created with administrative privileges and custom environment variables.
+
+Task 4: Service Management
+Objective:Manage system services.
+Commands:
+  # Check SSH service status and restart if necessary
+  sudo systemctl status ssh
+  sudo systemctl restart ssh
+
+  # Install and configure Apache web server
+  sudo apt update
+  sudo apt install apache2
+
+  # Ensure Apache starts on boot
+  sudo systemctl enable apache2
+
+  # Create simple HTML file
+  echo '<html><body><h1>It works!</h1></body></html>' | sudo tee /var/www/html/index.html
+Output: Apache web server installed, configured, and running with a sample HTML page accessible.
+
+Task 5: Networking
+Objective:Manage network configuration and security.
+Commands:
+# Display network configuration and routing table
+  ip a
+  ip route
+  ifconfig 
+  ip addr 
+  # Check DNS resolution
+  nslookup google.com
+
+  # Set up basic firewall
+  sudo ufw allow ssh
+  sudo ufw allow http
+  sudo ufw enable
+Output:Network configuration verified and basic firewall rules implemented.
+
+Task 6: Log Analysis
+
+Objective:Analyze system logs for issues.
+Commands:
+  # Check system logs
+  sudo tail -n 50 /var/log/syslog
+  sudo tail -n 50 /var/log/messages
+  ```
+Output:Summary of recent errors or warnings and steps taken to resolve them.
+
+### Task 7: Security Hardening
+
+Objective:Enhance server security.
+Commands:
+  # Disable root login via SSH
+  sudo sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+  sudo systemctl restart ssh
+
+  # Implement password aging policies
+  sudo chage -m 7 -M 90 -W 14 l2testuser
+
+  # Configure fail2ban
+  sudo apt install fail2ban
+  sudo systemctl enable fail2ban
+  sudo systemctl start fail2ban
+  
+Output:Security enhancements implemented including SSH configuration changes, password policies, and fail2ban setup.
+
+### Task 8: Backup and Recovery
+
+Objective:Perform backup and prepare for recovery.
+Commands:
+# Backup /etc directory
+  sudo tar -czvf /backup/etc_backup_$(date +%F).tar.gz /etc
+
+  # Restore instructions
+  # To restore, use:
+  # sudo tar -xzvf /backup/etc_backup_DATE.tar.gz -C /
+Output:Backup of `/etc` directory created with documentation of the restoration process.
+
+### Task 9:Advanced Networking Configuration
+
+-Configure bond interfaces for link aggregation.
+-Set up virtual LANs (VLANs) for network segmentation.
+-Implement Open vSwitch for advanced network virtualization.
+Step 1: Configure bond interfaces
+
+Edit /etc/network/interfaces:
+
+bash
+auto bond0
+iface bond0 inet manual
+    bond-slaves none
+    bond-mode 802.3ad
+    bond-miimon 100
+    bond-lacp-rate 1
+    bond-xmit-hash-policy layer3+4
+    slaves eth0 eth1
+
+Step 2: Set up VLAN
+Edit /etc/network/interfaces:
+auto eth0.10
+iface eth0.10 inet static
+    address 192.168.10.2
+    netmask 255.255.255.0
+    vlan-raw-device eth0
+
+Step 3: Implement Open vSwitch
+sudo apt-get install -y openvswitch-switch
+sudo ovs-vsctl add-br br0
+sudo ovs-vsctl add-port br0 eth0
+sudo ifconfig br0 up
